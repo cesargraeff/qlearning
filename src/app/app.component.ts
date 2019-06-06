@@ -16,41 +16,51 @@ export class AppComponent implements OnInit {
   
   async ngOnInit(){
     await this.montaMatriz();
+    debugger;
 
     let i = 0;
+    let ep =0
     //this.checkPrev()
-    while(i < 100){
-        this.posicaoAtualX = 4;
+    while(ep < 100){
+        this.posicaoAtualX = 2;
         this.posicaoAtualY = 0;
         //await this.atualizaQprev()
 
-        while(!(this.posicaoAtualX == 4 && this.posicaoAtualY == 9)){
+        while(!(this.posicaoAtualX == 2 && this.posicaoAtualY == 2)){
           await this.calculaQ()
-          console.log('CALCULOU A BAGACA');
-          console.log(this.Q);
+          if(i === 10000){
+            console.log('loppp')
+          }
+          i++;
         }
-        i++;
+        i=0;
+        console.log(this.Q);
+        ep++;
     }
+    console.log('CALCULOU A BAGACA');
+    console.log(this.Q);
+    console.log(this.M)
 
-    this.getFinal();
+    // this.getFinal();
 
     console.log('TERMINOU ESSA MERDA');
   }
 
 
   montaMatriz(){
-    for(let i=0;i<5;i++){
+    for(let i=0;i<3;i++){
       this.M[i] = [];
-      for(let j=0;j<10;j++){
+      for(let j=0;j<3;j++){
         this.M[i][j] = -1;
 
         if(i>0) this.Q.set('UP' + (i.toString() + j.toString()) ,0);
-        if(i<4) this.Q.set('DW' + (i.toString() + j.toString()) ,0);
+        if(i<2) this.Q.set('DW' + (i.toString() + j.toString()) ,0);
         if(j>0) this.Q.set('LF' + (i.toString() + j.toString()) ,0);
-        if(j<9) this.Q.set('RG' + (i.toString() + j.toString()) ,0);
+        if(j<2) this.Q.set('RG' + (i.toString() + j.toString()) ,0);
       }
     }
 
+    /*
     this.M[4][0] =  1;
     this.M[4][1] = -100;
     this.M[4][2] = -100;
@@ -70,6 +80,12 @@ export class AppComponent implements OnInit {
     this.M[1][4] =  -100;
     this.M[1][5] =  -100;
     this.M[1][7] =  -100;
+    */
+
+   this.M[2][2] =  100;
+   this.M[2][1] =  -100;
+   this.M[1][1] =  -100;
+
   }
 
   /**
@@ -105,6 +121,7 @@ export class AppComponent implements OnInit {
       if(this.random()){
         // Melhor caminho
         const ac = await this.getMelhor(this.posicaoAtualX,this.posicaoAtualY);
+        console.log('my movent is {} in [{}][{}]',ac, this.posicaoAtualX, this.posicaoAtualY, )
         await this.move(ac);
       }else{
         // Aleatório
@@ -113,10 +130,15 @@ export class AppComponent implements OnInit {
   }
 
   async transicao(xIni, yIni, xPos, yPos, ac){
-    const rec = this.M[xPos][yPos];
-    const action = rec + 0.5 * await this.maxVizinhanca(xPos, yPos);
-    this.Q.set(ac + xIni.toString() + yIni.toString(), action);
-    return
+    try{
+      const rec = this.M[xPos][yPos];
+      const action = rec + 0.5 * await this.maxVizinhanca(xPos, yPos);
+      this.Q.set(ac + xIni.toString() + yIni.toString(), action);
+      return
+    }catch(e){
+      console.log('erro com', xIni, yIni, xPos, yPos, ac )
+    }
+
   }
 
 
@@ -165,9 +187,9 @@ export class AppComponent implements OnInit {
   getFinal(){
 
     let XPos = 0;
-    let YPos = 4;
+    let YPos = 2;
 
-    while(!(XPos == 4 && YPos == 9)){
+    while(!(XPos == 2 && YPos == 2)){
       
       let maxVal = [];
       maxVal.push({v:this.Q.get('UP'+XPos.toString()+YPos.toString()), ac: 'UP'}  );
@@ -226,7 +248,7 @@ export class AppComponent implements OnInit {
           await this.move()
         return 
       case 'DW':
-          if(this.posicaoAtualX < 4){
+          if(this.posicaoAtualX < 2){
             await this.transicao(this.posicaoAtualX,this.posicaoAtualY,this.posicaoAtualX + 1,this.posicaoAtualY,'DW')
             this.posicaoAtualX++
             return
@@ -242,7 +264,7 @@ export class AppComponent implements OnInit {
           await this.move()
         return 
       case 'RG':
-          if(this.posicaoAtualY < 9){
+          if(this.posicaoAtualY < 2){
             await this.transicao(this.posicaoAtualX,this.posicaoAtualY,this.posicaoAtualX,this.posicaoAtualY + 1,'RG')
             this.posicaoAtualY++
             return
