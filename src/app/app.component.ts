@@ -8,16 +8,16 @@ import { Component, OnInit } from '@angular/core';
 export class AppComponent implements OnInit {
 
   M: any = [];
-  Q: any = new Map();
-  QPrev: any = new Map();
+  Q: any = {};
+  QPrev: any = {};
 
   executando: boolean = false;
 
   posicaoIniX: number = 4;
-  posicaoIniY: number = 9;
+  posicaoIniY: number = 0;
 
   posicaoFimX: number = 4;
-  posicaoFimY: number = 0;
+  posicaoFimY: number = 9;
 
   iteracoes: number = 1000;
 
@@ -25,8 +25,6 @@ export class AppComponent implements OnInit {
   posicaoAtualY: number;
 
   ac: string;
-  posicaoAntX: number;
-  posicaoAntY: number;
 
   ngOnInit(){
     this.montaMatriz();
@@ -43,14 +41,12 @@ export class AppComponent implements OnInit {
       while(ep < this.iteracoes){
           this.posicaoAtualX = this.posicaoIniX;
           this.posicaoAtualY = this.posicaoIniY;
-          this.posicaoAntX = this.posicaoIniX;
-          this.posicaoAntY = this.posicaoIniY;
           await this.atualizaQprev()
 
           while(!(this.posicaoAtualX == this.posicaoFimX && this.posicaoAtualY == this.posicaoFimY)){
             await this.calculaQ()
           }
-          this.Q.set(this.ac + this.posicaoAtualX.toString() + this.posicaoAtualY.toString(), 100);
+          this.Q[this.ac + this.posicaoAtualX + this.posicaoAtualY] =  100;
           console.log(ep)
           ep++;
       }
@@ -68,15 +64,18 @@ export class AppComponent implements OnInit {
 
 
   montaMatriz(){
+
+    this.Q = {};
+
     for(let i=0;i<5;i++){
       this.M[i] = [];
       for(let j=0;j<10;j++){
         this.M[i][j] = -1;
 
-        if(i>0) this.Q.set('UP' + (i.toString() + j.toString()) ,0);
-        if(i<4) this.Q.set('DW' + (i.toString() + j.toString()) ,0);
-        if(j>0) this.Q.set('LF' + (i.toString() + j.toString()) ,0);
-        if(j<9) this.Q.set('RG' + (i.toString() + j.toString()) ,0);
+        if(i>0) this.Q['UP' + i + j] = 0;
+        if(i<4) this.Q['DW' + i + j] = 0;
+        if(j>0) this.Q['LF' + i + j] = 0;
+        if(j<9) this.Q['RG' + i + j] = 0;
       }
     }
 
@@ -88,7 +87,6 @@ export class AppComponent implements OnInit {
     this.M[4][6] = -100;
     this.M[4][7] = -100;
     this.M[4][8] = -100;
-    
 
     this.M[3][3] =  -100;
     this.M[3][7] =  -100;
@@ -106,7 +104,7 @@ export class AppComponent implements OnInit {
    * Atualiza Qprev
    */
   atualizaQprev(): void {
-    this.QPrev = new Map(this.Q)
+    this.QPrev = Object.assign({}, this.Q)
   }
 
   /**
@@ -143,7 +141,7 @@ export class AppComponent implements OnInit {
       const rec = this.M[xIni][yIni];
       const aux = await this.maxVizinhanca(xPos, yPos);
       const action = rec + 0.5 * aux;
-      await this.Q.set(ac + xIni.toString() + yIni.toString(), action);
+      this.Q[ac + xIni + yIni] = action;
       return
     }catch(e){
       console.log('erro com', xIni, yIni, xPos, yPos, ac )
@@ -157,10 +155,10 @@ export class AppComponent implements OnInit {
    */
   maxVizinhanca(XPos, YPos){
     let maxVal = [];
-    maxVal.push(this.Q.get('UP'+XPos.toString()+YPos.toString()));
-    maxVal.push(this.Q.get('DW'+XPos.toString()+YPos.toString()));
-    maxVal.push(this.Q.get('LF'+XPos.toString()+YPos.toString()));
-    maxVal.push(this.Q.get('RG'+XPos.toString()+YPos.toString()));
+    maxVal.push(this.Q['UP'+XPos+YPos]);
+    maxVal.push(this.Q['DW'+XPos+YPos]);
+    maxVal.push(this.Q['LF'+XPos+YPos]);
+    maxVal.push(this.Q['RG'+XPos+YPos]);
     maxVal = maxVal.filter(e => e !== undefined && e !== null)
     return Math.max.apply(Math, maxVal)
   }
@@ -168,22 +166,10 @@ export class AppComponent implements OnInit {
   getMelhor(XPos, YPos){
     let maxVal = [];
 
-    if (!((XPos + 1) === this.posicaoAntX && YPos === this.posicaoAntY)){
-      maxVal.push({ v: this.Q.get('UP' + XPos.toString() + YPos.toString()), ac: 'UP' });
-    }
-
-    if (!((XPos - 1) === this.posicaoAntX && YPos === this.posicaoAntY)){
-      maxVal.push({ v: this.Q.get('DW' + XPos.toString() + YPos.toString()), ac: 'DW' });
-    }
-
-    if (!(XPos === this.posicaoAntX && (YPos + 1) === this.posicaoAntY)){
-      maxVal.push({ v: this.Q.get('RG' + XPos.toString() + YPos.toString()), ac: 'RG' });
-
-    }
-
-    if (!(XPos === this.posicaoAntX && (YPos - 1) === this.posicaoAntY)){
-      maxVal.push({ v: this.Q.get('LF' + XPos.toString() + YPos.toString()), ac: 'LF' });
-    }
+    maxVal.push({v:this.Q['UP'+XPos+YPos], ac: 'UP'}  );
+    maxVal.push({v:this.Q['DW'+XPos+YPos], ac: 'DW'}  );
+    maxVal.push({v:this.Q['LF'+XPos+YPos], ac: 'LF'}  );
+    maxVal.push({v:this.Q['RG'+XPos+YPos], ac: 'RG'}  );
   
     maxVal = maxVal.filter(e => {
       if(e.v != undefined){
@@ -215,10 +201,10 @@ export class AppComponent implements OnInit {
     while(!(XPos == this.posicaoFimX && YPos == this.posicaoFimY) && i < 50){
       
       let maxVal = [];
-      maxVal.push({v:this.Q.get('UP'+XPos.toString()+YPos.toString()), ac: 'UP'}  );
-      maxVal.push({v:this.Q.get('DW'+XPos.toString()+YPos.toString()), ac: 'DW'}  );
-      maxVal.push({v:this.Q.get('LF'+XPos.toString()+YPos.toString()), ac: 'LF'}  );
-      maxVal.push({v:this.Q.get('RG'+XPos.toString()+YPos.toString()), ac: 'RG'}  );
+      maxVal.push({v:this.Q['UP'+XPos+YPos], ac: 'UP'}  );
+      maxVal.push({v:this.Q['DW'+XPos+YPos], ac: 'DW'}  );
+      maxVal.push({v:this.Q['LF'+XPos+YPos], ac: 'LF'}  );
+      maxVal.push({v:this.Q['RG'+XPos+YPos], ac: 'RG'}  );
 
       maxVal = maxVal.filter(e => {
         if(e.v != undefined){
@@ -273,7 +259,6 @@ export class AppComponent implements OnInit {
           if(this.posicaoAtualX > 0){
             await this.transicao(this.posicaoAtualX,this.posicaoAtualY,this.posicaoAtualX - 1,this.posicaoAtualY,'UP')
             this.posicaoAtualX--
-            this.posicaoAntX--
             return
           }
           await this.move()
@@ -282,7 +267,6 @@ export class AppComponent implements OnInit {
           if(this.posicaoAtualX < 4){
             await this.transicao(this.posicaoAtualX,this.posicaoAtualY,this.posicaoAtualX + 1,this.posicaoAtualY,'DW')
             this.posicaoAtualX++
-            this.posicaoAntX--
             return
           }
           await this.move()
@@ -291,7 +275,6 @@ export class AppComponent implements OnInit {
           if(this.posicaoAtualY > 0){
             await this.transicao(this.posicaoAtualX,this.posicaoAtualY,this.posicaoAtualX,this.posicaoAtualY - 1,'LF')
             this.posicaoAtualY--
-            this.posicaoAntY--
             return
           }
           await this.move()
@@ -300,7 +283,6 @@ export class AppComponent implements OnInit {
           if(this.posicaoAtualY < 9){
             await this.transicao(this.posicaoAtualX,this.posicaoAtualY,this.posicaoAtualX,this.posicaoAtualY + 1,'RG')
             this.posicaoAtualY++
-            this.posicaoAntY++
             return
           }
           await this.move()
