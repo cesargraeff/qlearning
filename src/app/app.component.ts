@@ -11,6 +11,8 @@ export class AppComponent implements OnInit {
   Q: any = {};
   QPrev: any = {};
 
+  parseInt = parseInt;
+
   executando: boolean = false;
 
   posicaoIniX: number = 4;
@@ -19,12 +21,17 @@ export class AppComponent implements OnInit {
   posicaoFimX: number = 4;
   posicaoFimY: number = 9;
 
+  randomico = 0.7;
+  propagacao: number = 0.5;
+
   iteracoes: number = 1000;
 
   posicaoAtualX: number;
   posicaoAtualY: number;
 
   ac: string;
+
+  objectKeys = Object.keys;
 
   ngOnInit(){
     this.montaMatriz();
@@ -46,7 +53,7 @@ export class AppComponent implements OnInit {
           while(!(this.posicaoAtualX == this.posicaoFimX && this.posicaoAtualY == this.posicaoFimY)){
             await this.calculaQ()
           }
-          this.Q[this.ac + this.posicaoAtualX + this.posicaoAtualY] =  100;
+          this.Q['' + this.posicaoAtualX + this.posicaoAtualY + this.ac] =  100;
           console.log(ep)
           ep++;
       }
@@ -72,10 +79,10 @@ export class AppComponent implements OnInit {
       for(let j=0;j<10;j++){
         this.M[i][j] = -1;
 
-        if(i>0) this.Q['UP' + i + j] = 0;
-        if(i<4) this.Q['DW' + i + j] = 0;
-        if(j>0) this.Q['LF' + i + j] = 0;
-        if(j<9) this.Q['RG' + i + j] = 0;
+        if(i>0) this.Q['' + i + j + 'UP'] = 0;
+        if(i<4) this.Q['' + i + j + 'DW'] = 0;
+        if(j>0) this.Q['' + i + j + 'LF'] = 0;
+        if(j<9) this.Q['' + i + j + 'RG'] = 0;
       }
     }
 
@@ -140,8 +147,8 @@ export class AppComponent implements OnInit {
     try{
       const rec = this.M[xIni][yIni];
       const aux = await this.maxVizinhanca(xPos, yPos);
-      const action = rec + 0.5 * aux;
-      this.Q[ac + xIni + yIni] = action;
+      const action = rec + this.propagacao * aux;
+      this.Q['' + xIni + yIni + ac] = action;
       return
     }catch(e){
       console.log('erro com', xIni, yIni, xPos, yPos, ac )
@@ -155,10 +162,10 @@ export class AppComponent implements OnInit {
    */
   maxVizinhanca(XPos, YPos){
     let maxVal = [];
-    maxVal.push(this.Q['UP'+XPos+YPos]);
-    maxVal.push(this.Q['DW'+XPos+YPos]);
-    maxVal.push(this.Q['LF'+XPos+YPos]);
-    maxVal.push(this.Q['RG'+XPos+YPos]);
+    maxVal.push(this.Q[''+XPos+YPos+'UP']);
+    maxVal.push(this.Q[''+XPos+YPos+'DW']);
+    maxVal.push(this.Q[''+XPos+YPos+'LF']);
+    maxVal.push(this.Q[''+XPos+YPos+'RG']);
     maxVal = maxVal.filter(e => e !== undefined && e !== null)
     return Math.max.apply(Math, maxVal)
   }
@@ -166,10 +173,10 @@ export class AppComponent implements OnInit {
   getMelhor(XPos, YPos){
     let maxVal = [];
 
-    maxVal.push({v:this.Q['UP'+XPos+YPos], ac: 'UP'}  );
-    maxVal.push({v:this.Q['DW'+XPos+YPos], ac: 'DW'}  );
-    maxVal.push({v:this.Q['LF'+XPos+YPos], ac: 'LF'}  );
-    maxVal.push({v:this.Q['RG'+XPos+YPos], ac: 'RG'}  );
+    maxVal.push({v:this.Q[''+XPos+YPos+'UP'], ac: 'UP'}  );
+    maxVal.push({v:this.Q[''+XPos+YPos+'DW'], ac: 'DW'}  );
+    maxVal.push({v:this.Q[''+XPos+YPos+'LF'], ac: 'LF'}  );
+    maxVal.push({v:this.Q[''+XPos+YPos+'RG'], ac: 'RG'}  );
   
     maxVal = maxVal.filter(e => {
       if(e.v != undefined){
@@ -201,10 +208,10 @@ export class AppComponent implements OnInit {
     while(!(XPos == this.posicaoFimX && YPos == this.posicaoFimY) && i < 50){
       
       let maxVal = [];
-      maxVal.push({v:this.Q['UP'+XPos+YPos], ac: 'UP'}  );
-      maxVal.push({v:this.Q['DW'+XPos+YPos], ac: 'DW'}  );
-      maxVal.push({v:this.Q['LF'+XPos+YPos], ac: 'LF'}  );
-      maxVal.push({v:this.Q['RG'+XPos+YPos], ac: 'RG'}  );
+      maxVal.push({v:this.Q[''+XPos+YPos+'UP'], ac: 'UP'}  );
+      maxVal.push({v:this.Q[''+XPos+YPos+'DW'], ac: 'DW'}  );
+      maxVal.push({v:this.Q[''+XPos+YPos+'LF'], ac: 'LF'}  );
+      maxVal.push({v:this.Q[''+XPos+YPos+'RG'], ac: 'RG'}  );
 
       maxVal = maxVal.filter(e => {
         if(e.v != undefined){
@@ -294,7 +301,7 @@ export class AppComponent implements OnInit {
    * Retorna true caso use o melhor caminho e false caso um randow
    */
   random(): boolean{
-    if(Math.random() >= 0.7){
+    if(Math.random() >= this.randomico){
       return false;
     }else{
       return true;

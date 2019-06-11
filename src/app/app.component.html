@@ -27,7 +27,7 @@
                     <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="posicaoIniX" [disabled]="executando" />
                 </div>
             </div>
-            <div class="col">
+            <!--<div class="col">
                 <h1 class="page-header">
                     <i class="material-icons">stop</i>
                     Posição Final
@@ -40,7 +40,7 @@
                     <label>Posição Y</label>
                     <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="posicaoFimX" [disabled]="executando" />
                 </div>
-            </div>
+            </div>-->
             <div class="col">
                 <h1 class="page-header">
                     <i class="material-icons">settings</i>
@@ -51,8 +51,13 @@
                     <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="iteracoes" [disabled]="executando" />
                 </div>
                 <div class="form-group text-center">
-                    <label>Iterações</label>
-                    <input class="form-control form-control-sm text-center" type="text" [disabled]="executando" />
+                    <label>Valor Randômico</label>
+                    <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="randomico" [disabled]="executando" />
+                </div>
+
+                <div class="form-group text-center">
+                    <label>Taxa Propagação</label>
+                    <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="propagacao" [disabled]="executando" />
                 </div>
             </div>
         </div>
@@ -86,7 +91,7 @@
                 [ngClass]="{
                     black : item == -100,
                     final : posicaoFimY == j && posicaoFimX == i,
-                    inicial : posicaoIniY == j && posicaoIniX == i,
+                    inicial : parseInt(posicaoIniY) == parseInt(j) && parseInt(posicaoIniX) == parseInt(i),
                     blue : item == -1,
                     orange : item == 1000
                 }">
@@ -99,5 +104,32 @@
             </div>
         </div>
     </div>
+
+
+    <div class="row p-4">
+        <div class="col">
+            <h1 class="page-header pb-4">
+                <i class="material-icons">list</i>
+                Tabela Q
+            </h1>
+
+            <table class="table table-striped">
+                <tr>
+                    <th>Transição</th>
+                    <th>Valor</th>
+                </tr>
+                <tr *ngFor="let q of objectKeys(Q)">
+                    <td>
+                        {{q}}
+                    </td>
+                    <td>
+                        {{Q[q]}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    
 
 </div>
