@@ -1,1 +1,82 @@
-/* You can add global styles to this file, and also import other style files */
+.navbar{
+    p{
+        color: #FFF;
+        font-size: 11px;
+        margin: 0;
+        padding: 0;
+    }
+    .direita{
+        text-align: right;
+    }
+}
+
+.container{
+    padding: 20px;
+
+    .page-header {
+        margin-top: 0;
+        font-size: 20px;
+        margin-bottom: 10px;
+        i {
+            float: left;
+            margin-right: 10px;
+            font-size: 20px;
+        }
+    }
+
+    .tabuleiro{
+        .row{
+            height: 80px;
+            &.indice{
+                height: auto;
+            }
+            border: 1px solid #333;
+            border-bottom: none;
+            &:last-child{
+                border: 1px solid #333;
+            }
+            .col{
+                border-right: 1px solid #333;
+                &:last-child{
+                    border-right: none;
+                }
+                &.black{
+                    background: #000;
+                }
+                &.inicial{
+                    background: #29ff29;
+                }
+                &.final{
+                    background: red;
+                }
+                &.blue{
+                    background: #a7d8f9;
+                }
+                &.orange{
+                    background: orange;
+                }
+            }
+            .index{
+                border-right: 1px solid #333;
+                padding: 5px;
+            }
+        }
+    }
+    
+}
+
+
+.icon-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg); }
+    to { transform: scale(1) rotate(360deg); }
+}

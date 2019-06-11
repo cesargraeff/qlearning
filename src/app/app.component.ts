@@ -11,42 +11,59 @@ export class AppComponent implements OnInit {
   Q: any = new Map();
   QPrev: any = new Map();
 
+  executando: boolean = false;
+
+  posicaoIniX: number = 4;
+  posicaoIniY: number = 9;
+
+  posicaoFimX: number = 4;
+  posicaoFimY: number = 0;
+
+  iteracoes: number = 1000;
+
   posicaoAtualX: number;
   posicaoAtualY: number;
 
-  posicaoAntX: number; // todo verificar deixar a volta
-  posicaoAntY: number; // todo verificar deixar a volta
+  ac: string;
+  posicaoAntX: number;
+  posicaoAntY: number;
 
-  ac: string; // ultima açõ realizada
+  ngOnInit(){
+    this.montaMatriz();
+  }
 
-  async ngOnInit(){
-    await this.montaMatriz();
+  async iniciar(){
+    this.executando = true;
+    setTimeout(async () => {
+      let i = 0;
+      let ep = 0
 
-    let i = 0;
-    let ep =0
-     
-    while(this.checkPrev(this.QPrev) && ep < 10000){
-        this.posicaoAtualX = 4;
-        this.posicaoAtualY = 0;
-        this.posicaoAntX = 4;
-        this.posicaoAntY = 0;
-        await this.atualizaQprev()
+      await this.montaMatriz();
 
-        while(!(this.posicaoAtualX == 4 && this.posicaoAtualY == 9)){
-          await this.calculaQ()
-        }
-        await this.Q.set(this.ac + this.posicaoAtualX.toString() + this.posicaoAtualY.toString(), 100);
-        console.log(ep)
-        ep++;
-    }
-      console.log('CALCULOU A BAGACA');
+      while(ep < this.iteracoes){
+          this.posicaoAtualX = this.posicaoIniX;
+          this.posicaoAtualY = this.posicaoIniY;
+          this.posicaoAntX = this.posicaoIniX;
+          this.posicaoAntY = this.posicaoIniY;
+          await this.atualizaQprev()
+
+          while(!(this.posicaoAtualX == this.posicaoFimX && this.posicaoAtualY == this.posicaoFimY)){
+            await this.calculaQ()
+          }
+          this.Q.set(this.ac + this.posicaoAtualX.toString() + this.posicaoAtualY.toString(), 100);
+          console.log(ep)
+          ep++;
+      }
+
       console.log(this.Q);
-      console.log(this.M)
+      console.log(this.M);
 
+      this.executando = false;
 
-    // this.getFinal();
+      this.getFinal();
 
-    console.log('TERMINOU ESSA MERDA');
+    },500);
+  
   }
 
 
@@ -63,7 +80,6 @@ export class AppComponent implements OnInit {
       }
     }
 
-    this.M[4][0] =  -1;
     this.M[4][1] = -100;
     this.M[4][2] = -100;
     this.M[4][3] = -100;
@@ -72,7 +88,7 @@ export class AppComponent implements OnInit {
     this.M[4][6] = -100;
     this.M[4][7] = -100;
     this.M[4][8] = -100;
-    this.M[4][9] =  100;
+    
 
     this.M[3][3] =  -100;
     this.M[3][7] =  -100;
@@ -82,13 +98,8 @@ export class AppComponent implements OnInit {
     this.M[1][4] =  -100;
     this.M[1][5] =  -100;
     this.M[1][7] =  -100;
-  
-  /*
-   this.M[2][2] =  100;
-   this.M[2][1] =  -100;
-   this.M[1][1] =  -100;
-   */
 
+    this.M[this.posicaoFimX][this.posicaoFimY] =  100;
   }
 
   /**
@@ -171,7 +182,6 @@ export class AppComponent implements OnInit {
     }
 
     if (!(XPos === this.posicaoAntX && (YPos - 1) === this.posicaoAntY)){
-
       maxVal.push({ v: this.Q.get('LF' + XPos.toString() + YPos.toString()), ac: 'LF' });
     }
   
@@ -191,8 +201,6 @@ export class AppComponent implements OnInit {
       }
     })
 
-   // console.log(ai,maxVal,maxVal[ai]);
-
     return maxVal[ai].ac
   }
 
@@ -200,10 +208,11 @@ export class AppComponent implements OnInit {
 
   getFinal(){
 
-    let XPos = 0;
-    let YPos = 2;
+    let XPos = this.posicaoIniX;
+    let YPos = this.posicaoIniY;
 
-    while(!(XPos == 4 && YPos == 9)){
+    let i = 0;
+    while(!(XPos == this.posicaoFimX && YPos == this.posicaoFimY) && i < 50){
       
       let maxVal = [];
       maxVal.push({v:this.Q.get('UP'+XPos.toString()+YPos.toString()), ac: 'UP'}  );
@@ -217,8 +226,10 @@ export class AppComponent implements OnInit {
         }
       })
 
+      console.log(maxVal);
+
       let ai = 0;
-      let v = 0;
+      let v = -1000;
 
       maxVal.forEach( (e, i) => {
         if (e.v > v){
@@ -228,7 +239,7 @@ export class AppComponent implements OnInit {
       })
 
       const ac = maxVal[ai].ac;
-      // console.log(ac);
+      console.log(ac);
       switch(ac){
         case 'UP':
             XPos--
@@ -237,12 +248,16 @@ export class AppComponent implements OnInit {
             XPos++
             break;
         case 'LF':
-             YPos--
+            YPos--
           break;
         case 'RG':
             YPos++
             break;
       }
+
+      this.M[XPos][YPos] = 1000;
+
+      i++;
     }
   }
 
@@ -312,16 +327,15 @@ export class AppComponent implements OnInit {
     const rand = Math.floor(Math.random() * 4);
     switch(rand){
       case 0:
-        return 'UP'
+        return 'UP';
       case 1:
-        return 'DW'
+        return 'DW';
       case 2:
-        return 'LF'
+        return 'LF';
       case 3:
-        return 'RG'
+        return 'RG';
     }
   }
-
 
 
 }
