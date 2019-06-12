@@ -26,21 +26,16 @@
                     <label>Posição Y</label>
                     <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="posicaoIniX" [disabled]="executando" />
                 </div>
-            </div>
-            <!--<div class="col">
                 <h1 class="page-header">
-                    <i class="material-icons">stop</i>
-                    Posição Final
+                    <i class="material-icons icon-animate">sync</i>
+                    Episódios Executados
                 </h1>
-                <div class="form-group text-center">
-                    <label>Posição X</label>
-                    <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="posicaoFimY" [disabled]="executando" />
+                <div class="row">
+                    <div class="col text-center">
+                        {{ep}}
+                    </div>
                 </div>
-                <div class="form-group text-center">
-                    <label>Posição Y</label>
-                    <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="posicaoFimX" [disabled]="executando" />
-                </div>
-            </div>-->
+            </div>
             <div class="col">
                 <h1 class="page-header">
                     <i class="material-icons">settings</i>
@@ -58,6 +53,11 @@
                 <div class="form-group text-center">
                     <label>Taxa Propagação</label>
                     <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="propagacao" [disabled]="executando" />
+                </div>
+
+                <div class="form-group text-center">
+                    <label>Taxa de conversão</label>
+                    <input class="form-control form-control-sm text-center" type="text" [(ngModel)]="taxaConverge" [disabled]="executando" />
                 </div>
             </div>
         </div>
@@ -79,10 +79,6 @@
         </div>
     </div>
 
-    <div class="row">
-        
-    </div>
-
     <div class="tabuleiro">
         <div class="row row-center" *ngFor="let I of M; let i = index">
             <div class="index">{{i}}</div>
@@ -91,10 +87,11 @@
                 [ngClass]="{
                     black : item == -100,
                     final : posicaoFimY == j && posicaoFimX == i,
-                    inicial : parseInt(posicaoIniY) == parseInt(j) && parseInt(posicaoIniX) == parseInt(i),
+                    inicial : posicaoIniY == j && posicaoIniX == i,
                     blue : item == -1,
                     orange : item == 1000
                 }">
+                {{''+i+j}}
             </div>
         </div>
         <div class="row indice">
@@ -115,12 +112,20 @@
 
             <table class="table table-striped">
                 <tr>
-                    <th>Transição</th>
+                    <th>Bloco</th>
+                    <th>Ação</th>
                     <th>Valor</th>
                 </tr>
                 <tr *ngFor="let q of objectKeys(Q)">
                     <td>
-                        {{q}}
+                        {{q.substring(0,2)}}
+
+                    </td>
+                    <td>
+                        <i class="material-icons" *ngIf="q.substring(2,4) == 'UP'">arrow_upward</i>
+                        <i class="material-icons" *ngIf="q.substring(2,4) == 'LF'">arrow_back</i>
+                        <i class="material-icons" *ngIf="q.substring(2,4) == 'RG'">arrow_forward</i>
+                        <i class="material-icons" *ngIf="q.substring(2,4) == 'DW'">arrow_downward</i>
                     </td>
                     <td>
                         {{Q[q]}}

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import * as deepEqual from "deep-equal";
 
 @Component({
   selector: 'app-root',
@@ -28,8 +29,11 @@ export class AppComponent implements OnInit {
 
   posicaoAtualX: number;
   posicaoAtualY: number;
-
   ac: string;
+
+  converge: number = 0;
+  ep = 0;
+  taxaConverge: number = 50;
 
   objectKeys = Object.keys;
 
@@ -38,14 +42,14 @@ export class AppComponent implements OnInit {
   }
 
   async iniciar(){
+    this.ep = 0;
     this.executando = true;
     setTimeout(async () => {
       let i = 0;
-      let ep = 0
 
       await this.montaMatriz();
 
-      while(ep < this.iteracoes){
+      while(this.checkPrev() && this.ep < this.iteracoes){
           this.posicaoAtualX = this.posicaoIniX;
           this.posicaoAtualY = this.posicaoIniY;
           await this.atualizaQprev()
@@ -54,12 +58,8 @@ export class AppComponent implements OnInit {
             await this.calculaQ()
           }
           this.Q['' + this.posicaoAtualX + this.posicaoAtualY + this.ac] =  100;
-          console.log(ep)
-          ep++;
+          this.ep++;
       }
-
-      console.log(this.Q);
-      console.log(this.M);
 
       this.executando = false;
 
@@ -117,18 +117,16 @@ export class AppComponent implements OnInit {
   /**
    * Verifica se Q convergiu
    */
-  checkPrev(prev): boolean{
-    let testVal;
-    if (!prev.size) {
-        return true;
-    }
-    let dif = false
-    this.Q.forEach((v,k) => {
-      if(prev.get(k) !== v){
-        dif = true
+  checkPrev(): boolean{
+    if(deepEqual(this.Q,this.QPrev)){
+      this.converge++;
+      if(this.converge == this.taxaConverge){
+        return false;
       }
-    })
-    return dif;
+    }else{
+        this.converge = 0;
+    }
+    return true;
   }
 
   async calculaQ() {
@@ -142,6 +140,7 @@ export class AppComponent implements OnInit {
         await this.move();
       }
   }
+
 
   async transicao(xIni, yIni, xPos, yPos, ac){
     try{
@@ -219,7 +218,7 @@ export class AppComponent implements OnInit {
         }
       })
 
-      console.log(maxVal);
+     // console.log(maxVal);
 
       let ai = 0;
       let v = -1000;
@@ -232,7 +231,7 @@ export class AppComponent implements OnInit {
       })
 
       const ac = maxVal[ai].ac;
-      console.log(ac);
+      //console.log(ac);
       switch(ac){
         case 'UP':
             XPos--

@@ -31,7 +31,6 @@
               "node_modules/bootswatch/dist/materia/bootstrap.min.css"
             ],
             "scripts": [
-              "node_modules/bootstrap/dist/js/bootstrap.min.js"
             ]
           },
           "configurations": {
